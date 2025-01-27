@@ -1,23 +1,41 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
-import { projects } from "../data/projects";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../store";
+import { addProject } from "../store/projectsSlice";
+import { Modal } from "../components/Modal";
+import { BaseProject } from "../types/Project";
+import { v4 as uuidv4 } from 'uuid';
 
 export const ProjectsPage = () => {
     const [selectedTech, setSelectedTech] = useState<string>("All");
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
 
-    // Получение уникальных технологий из проектов
-    const allTechnologies = [
-        "All",
-        ...new Set(projects.flatMap((project) => project.technologies)),
-    ];
+    const projects = useSelector((state: RootState) => state.projects.items);
+    const dispatch = useDispatch<AppDispatch>();
 
-    // Фильтрация проектов по выбранной технологии
+    const toggleModal = () => {
+        setModalOpen((prev) => !prev); // Инвертируем состояние
+    };
+
+    const allTechnologies = useMemo(() => {
+        return [
+            "All",
+            ...new Set(projects.flatMap((project) => project.technologies)),
+        ];
+    }, [projects]);
+
     const filteredProjects = projects.filter((project) =>
         selectedTech === "All"
             ? true
             : project.technologies.includes(selectedTech)
     );
+
+    const handleAddProject = (project: BaseProject) => {
+        dispatch(addProject({ id: uuidv4(), ...project }));
+        toggleModal();
+    };
 
     return (
         <main className="flex flex-col min-h-screen">
@@ -29,8 +47,15 @@ export const ProjectsPage = () => {
                         Здесь представлены некоторые проекты, над которыми я работал.
                     </p>
 
+                    <button
+                        onClick={() => setModalOpen(true)}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                        Add
+                    </button>
+
                     {/* Селектор технологий */}
-                    <div className="mb-6">
+                    <div className="mb-6 mt-4">
                         <label htmlFor="tech-filter" className="block text-lg font-semibold mb-2">
                             Фильтровать по технологии:
                         </label>
@@ -57,9 +82,9 @@ export const ProjectsPage = () => {
                                 <h2 className="text-xl font-semibold mb-2">{project.title}</h2>
                                 <p className="text-gray-600 mb-4">{project.description}</p>
                                 <div className="flex flex-wrap gap-2 mb-4">
-                                    {project.technologies.map((tech, index) => (
+                                    {project.technologies.map((tech) => (
                                         <span
-                                            key={index}
+                                            key={uuidv4()}
                                             className="bg-blue-100 text-blue-700 px-2 py-1 text-sm rounded"
                                         >
                                             {tech}
@@ -78,7 +103,6 @@ export const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* Сообщение, если нет проектов */}
                     {filteredProjects.length === 0 && (
                         <p className="text-gray-500 text-lg mt-4">
                             Проекты с выбранной технологией отсутствуют.
@@ -87,6 +111,10 @@ export const ProjectsPage = () => {
                 </div>
             </div>
             <Footer />
+
+            {isModalOpen && (
+                <Modal onClose={() => toggleModal()} onSave={handleAddProject} />
+            )}
         </main>
     );
 };
