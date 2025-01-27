@@ -1,23 +1,24 @@
-import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Home } from './pages/home';
-import { About } from './pages/About';
-import { Skills } from './pages/Skills';
-import { Projects } from './pages/Projects';
-import { Contacts } from './pages/Contacts';
+import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { HomePage } from './pages/HomePage'
+import { AboutPage } from './pages/AboutPage'
+import { SkillsPage } from './pages/SkillsPage'
+import { ProjectsPage } from './pages/ProjectsPage'
+import { ContactPage } from './pages/ContactPage'
 
 function App() {
+
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/skills" element={<Skills />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/contacts" element={<Contacts />} />
+        <Route path='/' element={<HomePage />} />
+        <Route path='/about' element={<AboutPage/>} />
+        <Route path='/skills' element={<SkillsPage/>} />
+        <Route path='/projects' element={<ProjectsPage />} />
+        <Route path='/contact' element={<ContactPage />} />
       </Routes>
-    </Router>
-  );
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
